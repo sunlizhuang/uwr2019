@@ -21,9 +21,9 @@ import static org.junit.Assert.assertNotNull;
 @PowerMockIgnore("javax.management.*")
 public class TestTemplateProcessor implements DataSourceType{
 	//待测试类(SUT)的一个实例。
-	private TemplateProcessor tp;
+	private TemplateProcessor myTemplageProcessor;
 	//依赖类(DOC)的一个实例。
-	private DataSourceConfig dsc;
+	private DataSourceConfig myDataSourceConfig;
 
 	@Test
 	public void testStaticVarExtract() throws Exception {
@@ -31,7 +31,7 @@ public class TestTemplateProcessor implements DataSourceType{
 		//设置待测试类的状态（测试目标方法）
 		tp.staticVarExtract("resource/newtemplatezzz.doc");
 		//以下进行检查点设置
-		DataSource ds = dsc.getConstDataSource();
+		DataSource ds = myDataSourceConfig.getConstDataSource();
 
 		List<DataHolder> dhs = ds.getVars();
 		DataHolder dh1 = ds.getDataHolder("sex");
@@ -61,47 +61,36 @@ public class TestTemplateProcessor implements DataSourceType{
 		//参照流程：
 		//1. 使用EasyMock建立一个DataSourceConfig类的一个Mock对象实例；
 		//2. 录制该实例的STUB模式和行为模式（针对的是非静态方法）；
-		dsc=EasyMock.createMock(DataSourceConfig.class);
-		//对测试方法中用到的DataHolder的dh1,dh2,dh3配置
-		DataHolder dh1=EasyMock.createMock(DataHolder.class);
-		dh1.setName("sex");
-		EasyMock.expect(dh1.getValue()).andReturn("Female");
-		DataHolder dh2=EasyMock.createMock(DataHolder.class);
-		dh2.setName("readme");
-		EasyMock.expect(dh2.getValue()).andReturn("5");
-		DataHolder dh3=EasyMock.createMock(DataHolder.class);
-		dh3.setName("testexpr");
-		EasyMock.expect(dh3.getValue()).andReturn("5.0");
-		EasyMock.expect(dh3.getExpr()).andReturn("${num}+${readme}");
-		EasyMock.expect(dh3.fillValue()).andReturn(null);
-
-		ArrayList<DataHolder> dhs=new ArrayList<>();
-		dhs.add(dh1);
-		dhs.add(dh2);
-		dhs.add(dh3);
-
-		//ConstDataSource配置
-		ConstDataSource cds=EasyMock.createMock(ConstDataSource.class);
-		cds.setVars(dhs);
-		EasyMock.expect(cds.getVars()).andStubReturn(dhs);
-		EasyMock.expect(cds.getDataHolder("sex")).andReturn(dh1);
-		EasyMock.expect(cds.getDataHolder("readme")).andReturn(dh2);
-		EasyMock.expect(cds.getDataHolder("testexpr")).andReturn(dh3);
-		EasyMock.replay(cds,dh1,dh2,dh3);
+		myDataSourceConfig=EasyMock.createMock(DataSourceConfig.class);
+		DataHolder dataholder1=EasyMock.createMock(DataHolder.class);
+		dataholder1.setName("sex");
+		EasyMock.expect(dataholder1.getValue()).andReturn("Female");
+		DataHolder dataHolder2=EasyMock.createMock(DataHolder.class);
+		dataHolder2.setName("readme");
+		EasyMock.expect(dataHolder2.getValue()).andReturn("5");
+		DataHolder dataHolder3=EasyMock.createMock(DataHolder.class);
+		dataHolder3.setName("testexpr");
+		EasyMock.expect(dataHolder3.getValue()).andReturn("5.0");
+		EasyMock.expect(dataHolder3.getExpr()).andReturn("${num}+${readme}");
+		EasyMock.expect(dataHolder3.fillValue()).andReturn(null);
+		ArrayList<DataHolder> dataHolderSites=new ArrayList<>();
+		dataHolderSites.add(dataholder1);
+		dataHolderSites.add(dataHolder2);
+		dataHolderSites.add(dataHolder3);
+		ConstDataSource myConstDataSource=EasyMock.createMock(ConstDataSource.class);
+		myConstDataSource.setVars(dataHolderSites);
+		EasyMock.expect(myConstDataSource.getVars()).andStubReturn(dataHolderSites);
+		EasyMock.expect(myConstDataSource.getDataHolder("sex")).andReturn(dataholder1);
+		EasyMock.expect(myConstDataSource.getDataHolder("readme")).andReturn(dataHolder2);
+		EasyMock.expect(myConstDataSource.getDataHolder("testexpr")).andReturn(dataHolder3);
+		EasyMock.replay(myConstDataSource,dataholder1,dataHolder2,dataHolder3);
 		//3. 使用PowerMock建立DataSourceConfig类的静态Mock；
 		PowerMock.mockStatic(DataSourceConfig.class);
 		//4. 录制该静态Mock的行为模式（针对的是静态方法）；
-		EasyMock.expect(DataSourceConfig.newInstance()).andStubReturn(dsc);
-        //------------------------------------------------
-        //以上流程请在这里实现：
-        //
-        //
-        // 这里写代码
-        //
-        //------------------------------------------------
+		EasyMock.expect(DataSourceConfig.newInstance()).andStubReturn(myDataSourceConfig);
 		//5. 重放所有的行为。
-		PowerMock.replayAll(dsc);
-		//初始化一个待测试类（SUT）的实例
+		PowerMock.replayAll(myDataSourceConfig);
+
 		tp = new TemplateProcessor();
 	}
 }
