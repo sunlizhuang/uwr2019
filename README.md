@@ -1,8 +1,6 @@
 # uwr
 Universal Word Report
 
-test标记为test Sources Root、src标记为Sources Root
-添加lib文件夹为libraries
-创建out文件夹
-修改resource文件中newdatasource.xml中路径为本机路径。
-命令行参数为：-c resource\newdatasource.xml -o output.doc resource\newtemplatezzz.doc
+张洪源 软日1604 201693035
+孙力壮 软日1604 201693057
+李廷伟 软日1604 201603089
